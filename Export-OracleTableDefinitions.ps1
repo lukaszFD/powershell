@@ -30,10 +30,12 @@ function Export-OracleObjectDefinitions {
                 }
                 'view' {
                     $subDirectory = 'views'
+                    $header = "CREATE VIEW $objectName AS"
                     break
                 }
                 'mview' {
                     $subDirectory = 'mviews'
+                    $header = "CREATE MATERIALIZED VIEW $objectName AS"
                     break
                 }
                 default {
@@ -45,6 +47,12 @@ function Export-OracleObjectDefinitions {
             $filePath = Join-Path $outputDirectory "$subDirectory\$objectName.sql"
 
             $objectDefinition = $objectDefinitionLob.Value
+
+            # Dodaj nagłówek przed definicją obiektu (jeśli jest wymagany)
+            if ($header) {
+                $objectDefinition = "$header`r`n$objectDefinition"
+            }
+
             [System.IO.File]::WriteAllText($filePath, $objectDefinition, [System.Text.Encoding]::UTF8)
 
             Write-Host "Zapisano definicję obiektu $objectType $objectName do $filePath"
